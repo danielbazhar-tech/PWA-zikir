@@ -1,0 +1,1001 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Zikir Pagi & Petang — Sahih dan Kuat Sandaran</title>
+
+  <!-- PWA / iOS Home Screen -->
+  <meta name="theme-color" content="#fffdf6">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Pulang Zikir">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <link rel="manifest" href="./manifest.json">
+  <link rel="apple-touch-icon" href="./icons/icon-192.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --ink: #171717;
+      --muted: #555;
+      --paper: #fffdf6;
+      --paper2: #fff7da;
+      --line: #1f1f1f;
+      --yellow: #ffe45c;
+      --gold: #f5a623;
+      --green: #138a45;
+      --red: #b42318;
+      --blue: #174ea6;
+      --ar-size: clamp(24px, 6vw, 35px);
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: 'Be Vietnam Pro', system-ui, -apple-system, sans-serif;
+      background: var(--paper);
+      color: var(--ink);
+      line-height: 1.65;
+    }
+    body.drawer-open { overflow: hidden; }
+
+    /* ── PWA SAFE AREA: penting untuk iPhone selepas Add to Home Screen ── */
+    body {
+      padding-left: env(safe-area-inset-left);
+      padding-right: env(safe-area-inset-right);
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+    .topbar {
+      padding-top: env(safe-area-inset-top);
+    }
+    .drawer {
+      padding-top: env(safe-area-inset-top);
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+    .sticky-bar {
+      bottom: calc(10px + env(safe-area-inset-bottom));
+    }
+    .pwa-card {
+      display: none;
+      border: 2px solid var(--line);
+      border-radius: 10px;
+      background: #fff;
+      box-shadow: 4px 4px 0 rgba(0,0,0,.1);
+      padding: 13px 15px;
+      margin: 14px 0 0;
+      font-size: 13px;
+      color: #333;
+    }
+    .pwa-card.show { display: block; }
+    .pwa-card strong { color: var(--ink); }
+    .pwa-card .pwa-actions { display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
+    .pwa-card ol { margin: 8px 0 0; padding-left: 20px; }
+
+    /* Arabic font size states */
+    body.ar-small .arabic { font-size: clamp(18px, 4.5vw, 26px); }
+    body.ar-large .arabic { font-size: clamp(30px, 7.5vw, 44px); }
+
+    /* Layout */
+    .wrap      { width: min(860px, 100% - 32px); margin: 0 auto; }
+    .main-wrap { width: min(860px, 100% - 32px); margin: 0 auto; padding: 28px 0 100px; }
+
+    /* ── TOPBAR ── */
+    .topbar {
+      position: sticky; top: 0; z-index: 50;
+      background: #fff;
+      border-bottom: 2px solid var(--line);
+      box-shadow: 0 4px 0 rgba(0,0,0,.07);
+    }
+    .topbar-inner {
+      width: min(860px, 100% - 32px);
+      margin: 0 auto; padding: 10px 0;
+      display: flex; align-items: center; justify-content: space-between; gap: 8px;
+    }
+    .brand { font-weight: 800; font-size: 14px; letter-spacing: -.02em; flex: 1; text-align: center; }
+
+    /* ── SHARED BUTTON BASE ── */
+    .btn, .hamb, .chip, .close-btn, .ar-btn {
+      font-family: inherit; cursor: pointer; font-weight: 800;
+      border: 2px solid var(--line);
+      transition: transform .12s ease, box-shadow .12s ease;
+    }
+
+    /* ── HAMB ── */
+    .hamb {
+      background: var(--yellow); border-radius: 8px;
+      padding: 9px 11px; font-size: 13px;
+      display: flex; align-items: center; gap: 7px;
+      box-shadow: 3px 3px 0 var(--line); color: var(--ink);
+    }
+    .hamb:hover { transform: translate(1px,1px); box-shadow: 2px 2px 0 var(--line); }
+    .hamb .bars { display: flex; flex-direction: column; gap: 4px; }
+    .hamb .bar  { width: 16px; height: 2px; background: var(--ink); border-radius: 2px; display: block; }
+
+    /* ── CHIP ── */
+    .chip {
+      background: #fff; border-radius: 999px;
+      padding: 7px 12px; font-size: 13px;
+      box-shadow: 2px 2px 0 var(--line); color: var(--ink);
+    }
+    .chip:hover { transform: translate(1px,1px); box-shadow: 1px 1px 0 var(--line); }
+    .chip.active { background: var(--yellow); }
+    .chip.small  { padding: 6px 9px; font-size: 12px; }
+
+    /* ── ARABIC FONT SIZE BUTTONS ── */
+    .ar-size-group { display: flex; }
+    .ar-btn {
+      background: #fff; padding: 7px 9px; font-size: 12px; color: var(--muted);
+      box-shadow: none;
+    }
+    .ar-btn:first-child { border-radius: 8px 0 0 8px; border-right-width: 1px; }
+    .ar-btn:last-child  { border-radius: 0 8px 8px 0; border-left-width: 1px; }
+    .ar-btn.active { background: var(--yellow); color: var(--ink); }
+    .ar-btn:hover  { background: var(--paper2); }
+
+    /* ── COPY / CARD BUTTONS ── */
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 5px;
+      border-radius: 8px; font-size: 12px; padding: 7px 10px;
+      box-shadow: 2px 2px 0 var(--line); background: #fff; color: var(--ink);
+      text-decoration: none;
+    }
+    .btn:hover { transform: translate(1px,1px); box-shadow: 1px 1px 0 var(--line); }
+    .btn.yellow { background: var(--yellow); }
+    .btn.done-btn { background: #fff; color: var(--muted); }
+    .btn.done-btn.ticked { background: #d4f5e2; border-color: var(--green); color: var(--green); box-shadow: 2px 2px 0 var(--green); }
+
+    /* ── CLOSE BTN ── */
+    .close-btn {
+      background: #fff; border-radius: 8px; padding: 7px 10px;
+      font-size: 13px; box-shadow: 2px 2px 0 var(--line);
+    }
+    .close-btn:hover { transform: translate(1px,1px); box-shadow: 1px 1px 0 var(--line); }
+
+    /* ── DRAWER ── */
+    .drawer-backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.38); z-index: 80; }
+    .drawer-backdrop.open { display: block; }
+    .drawer {
+      position: fixed; top: 0; left: 0; height: 100dvh; width: min(86vw, 360px);
+      background: #fff; border-right: 3px solid var(--line);
+      box-shadow: 7px 0 0 rgba(0,0,0,.08);
+      z-index: 90; transform: translateX(-110%); transition: .22s ease;
+      display: flex; flex-direction: column;
+    }
+    .drawer.open { transform: translateX(0); }
+    .drawer-head {
+      padding: 14px 16px; border-bottom: 2px solid var(--line);
+      display: flex; align-items: center; justify-content: space-between; gap: 10px;
+      background: var(--yellow);
+    }
+    .drawer-head h3 { margin: 0; font-size: 15px; font-weight: 800; }
+    .drawer-list { padding: 8px; overflow: auto; flex: 1; }
+    .drawer-list .group {
+      font-size: 11px; letter-spacing: .1em; text-transform: uppercase;
+      color: var(--red); font-weight: 800; margin: 14px 10px 5px;
+    }
+    .drawer-list a {
+      display: block; text-decoration: none; color: var(--ink);
+      padding: 9px 11px; border-radius: 8px; border: 2px solid transparent;
+      font-size: 13px; font-weight: 600; transition: background .12s, border-color .12s;
+    }
+    .drawer-list a:hover  { background: var(--paper2); border-color: var(--line); }
+    .drawer-list a.spy-active { background: var(--paper2); border-color: var(--line); font-weight: 800; }
+    .pill-row { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 3px; }
+    .mini-pill {
+      font-size: 10px; color: var(--muted); border: 1px solid #ccc;
+      border-radius: 999px; padding: 1px 6px; font-weight: 700;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      padding: 34px 0 42px; border-bottom: 2px solid var(--line);
+      background:
+        linear-gradient(90deg, rgba(0,0,0,.028) 1px, transparent 1px),
+        linear-gradient(rgba(0,0,0,.028) 1px, transparent 1px),
+        var(--paper);
+      background-size: 22px 22px;
+    }
+    .eyebrow {
+      display: inline-block; background: #fff;
+      border: 2px solid var(--line); border-radius: 100px;
+      padding: 6px 13px; font-size: 12px; font-weight: 800; margin-bottom: 14px;
+      box-shadow: 2px 2px 0 var(--line);
+    }
+    .hero h1 {
+      margin: 0 0 12px;
+      font-size: clamp(32px, 6.5vw, 54px);
+      font-weight: 800; letter-spacing: -.04em; line-height: 1.06;
+    }
+    .hero > .wrap > p { margin: 0 0 16px; color: #333; max-width: 640px; font-size: 16px; }
+    .nota-box {
+      border: 2px solid var(--line); border-radius: 10px;
+      padding: 13px 15px; background: var(--paper2);
+      box-shadow: 4px 4px 0 rgba(0,0,0,.1);
+      margin: 0 0 16px; font-size: 14px; color: #333;
+    }
+    .controls { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
+    .small-note { font-size: 13px; color: var(--muted); font-weight: 600; }
+
+    /* ── SECTION HEAD ── */
+    .section-head { display: flex; align-items: center; gap: 10px; margin: 36px 0 14px; }
+    .section-num {
+      flex: 0 0 auto; width: 32px; height: 32px;
+      border: 2px solid var(--line); border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: 13px; background: var(--yellow);
+    }
+    .section-head h3 { margin: 0; font-size: 19px; font-weight: 800; letter-spacing: -.03em; }
+
+    /* ── GRID & EMPTY STATE ── */
+    .grid { display: grid; gap: 14px; }
+    .empty-state {
+      display: none; text-align: center; padding: 28px;
+      border: 2px dashed #ccc; border-radius: 10px;
+      color: var(--muted); font-weight: 700; font-size: 14px;
+    }
+
+    /* ── CARD ── */
+    .card {
+      scroll-margin-top: 74px; background: #fff;
+      border: 2px solid var(--line); border-radius: 10px;
+      padding: 18px; box-shadow: 5px 5px 0 rgba(0,0,0,.1);
+      transition: opacity .2s ease, transform .2s ease;
+    }
+    .card.hiding { opacity: 0; transform: translateY(6px); pointer-events: none; }
+    .card.done-card { border-color: var(--green); box-shadow: 5px 5px 0 rgba(19,138,69,.18); }
+    .card.done-card .card-title-row { opacity: .7; }
+
+    .card-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
+    .card h2   { margin: 0 0 7px; font-size: 16px; font-weight: 800; letter-spacing: -.02em; line-height: 1.2; }
+    .meta      { display: flex; flex-wrap: wrap; gap: 5px; }
+    .badge {
+      font-size: 11px; font-weight: 800; border: 2px solid var(--line);
+      padding: 3px 8px; border-radius: 999px; background: #fff; color: var(--ink);
+    }
+    .badge.gold  { background: #fff6bd; color: #7a5500; border-color: #c8900a; }
+    .badge.green { background: #d4f5e2; color: #0c4d25; border-color: #138a45; }
+    .badge.blue  { background: #ddeeff; color: #0d2e6e; border-color: #174ea6; }
+    .badge.warn  { background: #fff0d4; color: #7a3800; border-color: #c06800; }
+
+    .actions { display: flex; gap: 6px; flex-shrink: 0; flex-wrap: wrap; justify-content: flex-end; }
+
+    /* ── ARABIC ── */
+    .arabic {
+      font-family: 'Amiri', serif;
+      font-size: var(--ar-size);
+      line-height: 2.1; text-align: right; direction: rtl;
+      margin: 14px 0; padding: 16px;
+      border-radius: 10px; background: var(--paper);
+      border: 2px solid var(--line);
+      box-shadow: 3px 3px 0 rgba(0,0,0,.08);
+      transition: font-size .2s ease;
+    }
+
+    /* ── TAP COUNTER ── */
+    .counter-row {
+      display: flex; align-items: center; gap: 8px;
+      margin: 10px 0; padding: 10px 12px;
+      border: 2px solid var(--line); border-radius: 10px;
+      background: #fff; box-shadow: 3px 3px 0 rgba(0,0,0,.08);
+    }
+    .counter-row .c-label { font-size: 12px; font-weight: 700; color: var(--muted); flex: 1; }
+    .c-minus, .c-plus {
+      border: 2px solid var(--line); border-radius: 8px;
+      background: #fff; color: var(--ink);
+      width: 34px; height: 34px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; font-weight: 800; cursor: pointer;
+      font-family: inherit;
+      box-shadow: 2px 2px 0 var(--line);
+      transition: transform .1s, box-shadow .1s;
+      flex-shrink: 0;
+    }
+    .c-plus  { background: var(--yellow); font-size: 22px; }
+    .c-minus:hover, .c-plus:hover { transform: translate(1px,1px); box-shadow: 1px 1px 0 var(--line); }
+    .c-display {
+      font-size: 15px; font-weight: 800; min-width: 60px; text-align: center;
+    }
+    .c-display .c-current { font-size: 22px; letter-spacing: -.04em; }
+    .c-display .c-sep     { color: var(--muted); font-size: 13px; margin: 0 2px; }
+    .c-display .c-target  { color: var(--muted); font-size: 14px; }
+    .c-reset {
+      font-size: 11px; font-weight: 700; color: var(--muted);
+      background: none; border: none; cursor: pointer; padding: 4px 6px;
+      font-family: inherit; border-radius: 4px;
+      flex-shrink: 0;
+    }
+    .c-reset:hover { color: var(--red); background: #fff0f0; }
+    .counter-done { background: #d4f5e2; border-color: var(--green); }
+    .counter-done .c-display .c-current { color: var(--green); }
+
+    /* ── CARD TEXT ── */
+    .meaning  { color: #2b2b2b; margin: 8px 0; font-size: 14px; line-height: 1.65; }
+    .small-txt { font-size: 13px; color: var(--muted); margin: 6px 0; }
+    .ref { margin-top: 12px; color: #333; font-size: 13px; border-left: 3px solid var(--gold); padding-left: 10px; font-weight: 600; }
+
+    /* ── SURAH BLOCK ── */
+    .surah-block { border-top: 1px dashed #bbb; margin-top: 12px; padding-top: 12px; }
+    .surah-block:first-of-type { border-top: none; margin-top: 0; padding-top: 0; }
+    .surah-title { font-weight: 800; font-size: 12px; color: var(--red); margin-bottom: 4px; text-transform: uppercase; letter-spacing: .06em; }
+
+    /* ── DETAILS ── */
+    details { margin-top: 12px; border: 2px solid var(--line); border-radius: 10px; background: var(--paper2); overflow: hidden; }
+    summary { cursor: pointer; padding: 11px 13px; font-weight: 800; font-size: 13px; color: var(--ink); }
+    .hadith-body { padding: 0 14px 14px; color: #333; font-size: 14px; }
+    .hadith-body p { margin: 8px 0; }
+
+    /* ── TIP BOX ── */
+    .tip-box {
+      background: var(--yellow); border: 2px solid var(--line); border-radius: 10px;
+      padding: 20px 22px; box-shadow: 5px 5px 0 rgba(0,0,0,.12); margin: 36px 0 0;
+    }
+    .tip-box h2 { margin: 0 0 10px; font-size: 18px; font-weight: 800; letter-spacing: -.03em; }
+    .tip-box p  { margin: 0; color: #222; font-size: 15px; }
+
+    /* ── STICKY MOBILE BAR ── */
+    .sticky-bar {
+      display: none;
+      position: fixed; left: 10px; right: 10px; bottom: 10px; z-index: 70;
+      background: #fff; border: 2px solid var(--line); border-radius: 12px;
+      padding: 10px 14px; box-shadow: 0 6px 24px rgba(0,0,0,.18);
+      align-items: center; gap: 12px;
+    }
+    .sb-label { font-size: 12px; font-weight: 800; color: var(--muted); flex-shrink: 0; }
+    .sb-progress { flex: 1; display: flex; align-items: center; gap: 6px; }
+    .sb-count { font-size: 15px; font-weight: 800; letter-spacing: -.03em; }
+    .sb-total { font-size: 12px; color: var(--muted); font-weight: 700; }
+    .sb-dots { display: flex; gap: 4px; flex-wrap: wrap; }
+    .sb-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      border: 1.5px solid var(--line); background: #fff;
+      transition: background .2s;
+    }
+    .sb-dot.filled { background: var(--green); border-color: var(--green); }
+
+    @media (max-width: 720px) {
+      .sticky-bar { display: flex; }
+    }
+
+    /* ── FOOTER ── */
+    .footer { background: #111; color: #aaa; padding: 28px 16px; text-align: center; font-size: 13px; }
+
+    /* ── TOAST ── */
+    .toast {
+      position: fixed; bottom: 70px; left: 50%; transform: translateX(-50%);
+      background: #111; color: #fff; border: 2px solid #333; border-radius: 999px;
+      padding: 10px 18px; font-size: 13px; font-weight: 800;
+      z-index: 120; opacity: 0; pointer-events: none; transition: .18s; font-family: inherit;
+    }
+    .toast.show { opacity: 1; }
+    .hidden { display: none !important; }
+    .sticky-bar { bottom: calc(10px + env(safe-area-inset-bottom)); }
+
+    @media (min-width: 860px) {
+      .hero { padding: 44px 0 52px; }
+      .card { padding: 22px; }
+      .toast { bottom: 20px; }
+    }
+    @media (max-width: 600px) {
+      .card-head { flex-direction: column; gap: 8px; }
+      .actions { justify-content: flex-start; flex-wrap: wrap; }
+      .actions .btn { font-size: 11px; padding: 6px 9px; }
+    }
+    @media (max-width: 440px) {
+      .card { padding: 14px; }
+      .arabic { padding: 12px; }
+      .hamb .hamb-label { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="topbar-inner">
+      <button class="hamb" id="openDrawer" aria-label="Buka senarai zikir">
+        <div class="bars"><span class="bar"></span><span class="bar"></span><span class="bar"></span></div>
+        <span class="hamb-label">Senarai</span>
+      </button>
+      <div class="brand">Zikir Pagi & Petang</div>
+      <div style="display:flex;align-items:center;gap:6px">
+        <div class="ar-size-group" title="Saiz tulisan Arab">
+          <button class="ar-btn" id="arSmall">A−</button>
+          <button class="ar-btn active" id="arMed">Aa</button>
+          <button class="ar-btn" id="arLarge">A+</button>
+        </div>
+        <button class="chip small" id="toTop" title="Ke atas">↑</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- DRAWER BACKDROP -->
+  <div class="drawer-backdrop" id="backdrop"></div>
+
+  <!-- DRAWER -->
+  <aside class="drawer" id="drawer" aria-label="Senarai zikir">
+    <div class="drawer-head">
+      <h3>Senarai Bacaan</h3>
+      <button class="close-btn" id="closeDrawer">Tutup ×</button>
+    </div>
+    <nav class="drawer-list">
+      <div class="group">Minimum Harian</div>
+      <a href="#sayyidul">Sayyidul Istighfar<div class="pill-row"><span class="mini-pill">Bukhari</span><span class="mini-pill">Pagi/Petang</span></div></a>
+      <a href="#subhanallah100">Subhanallahi wa bihamdih ×100<div class="pill-row"><span class="mini-pill">Muslim</span><span class="mini-pill">Pagi/Petang</span></div></a>
+      <a href="#threequl">3 Qul ×3<div class="pill-row"><span class="mini-pill">Hasan/Sahih</span><span class="mini-pill">Pagi/Petang</span></div></a>
+      <div class="group">Lengkap Pagi & Petang</div>
+      <a href="#asbahna">Asbahna / Amsayna<div class="pill-row"><span class="mini-pill">Muslim</span></div></a>
+      <a href="#afiyah">Doa 'Afiyah<div class="pill-row"><span class="mini-pill">Sahih sebahagian ulama</span></div></a>
+      <a href="#bismillah">Bismillahilladhi la yadurru ×3<div class="pill-row"><span class="mini-pill">Hasan/Sahih</span></div></a>
+      <a href="#raditu">Raditu billahi rabba ×3<div class="pill-row"><span class="mini-pill">Hasan</span></div></a>
+      <a href="#kalimatillah">A'udhu bikalimatillah ×3<div class="pill-row"><span class="mini-pill">Muslim</span><span class="mini-pill">Petang</span></div></a>
+      <div class="group">Tambahan Sahih</div>
+      <a href="#tahlil100">Tahlil 100 kali<div class="pill-row"><span class="mini-pill">Bukhari/Muslim</span></div></a>
+      <a href="#juwayriyah">Zikir Juwayriyah selepas Subuh<div class="pill-row"><span class="mini-pill">Muslim</span></div></a>
+    </nav>
+  </aside>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="wrap">
+      <div class="eyebrow">Versi 1.0 · Sahih & kuat sandaran</div>
+      <h1>Zikir Pagi & Petang</h1>
+      <p>Satu halaman ringkas untuk bacaan harian: Arabic penuh, maksud Melayu, rujukan hadis, dan hadis penuh dalam Bahasa Melayu secara collapsible.</p>
+      <div class="nota-box">
+        <strong>Nota amanah:</strong> Tidak semua bacaan di bawah setaraf Bukhari-Muslim. Yang bukan Bukhari/Muslim ditandakan sebagai <em>Hasan/Sahih menurut sebahagian ulama</em> atau <em>Hasan</em>. Ambil "Minimum Harian" jika mahu yang paling mudah untuk istiqamah.
+      </div>
+      <div class="controls" aria-label="Filter bacaan">
+        <button class="chip active" data-filter="all">Semua</button>
+        <button class="chip" data-filter="morning">Pagi</button>
+        <button class="chip" data-filter="evening">Petang</button>
+        <button class="chip" data-filter="strict">Strict Bukhari/Muslim</button>
+        <button class="chip" data-filter="minimum">Minimum</button>
+      </div>
+      <p class="small-note"><strong>Waktu terbaik:</strong> pagi selepas Subuh hingga matahari naik; petang selepas Asar hingga Maghrib.</p>
+
+      <div class="pwa-card" id="pwaCard">
+        <strong>Install macam app:</strong> buka page ini di phone, kemudian tambah ke Home Screen. Android biasanya boleh tekan butang install; iPhone guna Safari → Share → Add to Home Screen.
+        <div class="pwa-actions">
+          <button class="btn yellow" id="installBtn" type="button" style="display:none">Install app</button>
+          <button class="btn" id="hidePwaCard" type="button">Faham</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MAIN -->
+  <main class="main-wrap">
+
+    <!-- SECTION A -->
+    <div class="section-head">
+      <div class="section-num">A</div>
+      <h3>Minimum Harian</h3>
+    </div>
+    <div class="grid" id="grid-a">
+
+      <!-- 1. Sayyidul Istighfar -->
+      <article class="card" id="sayyidul" data-tags="morning evening strict minimum" data-count="1">
+        <div class="card-head">
+          <div class="card-title-row">
+            <h2>1. Sayyidul Istighfar</h2>
+            <div class="meta">
+              <span class="badge gold">Pagi & Petang</span>
+              <span class="badge green">Sahih al-Bukhari</span>
+              <span class="badge blue">×1</span>
+            </div>
+          </div>
+          <div class="actions">
+            <button class="btn copy-ar">Copy Arabic</button>
+            <button class="btn yellow copy-all">Copy Semua</button>
+            <button class="btn done-btn" title="Tandakan selesai">✓ Selesai</button>
+          </div>
+        </div>
+        <div class="arabic">اللَّهُمَّ أَنْتَ رَبِّي، لَا إِلَهَ إِلَّا أَنْتَ، خَلَقْتَنِي وَأَنَا عَبْدُكَ، وَأَنَا عَلَى عَهْدِكَ وَوَعْدِكَ مَا اسْتَطَعْتُ، أَعُوذُ بِكَ مِنْ شَرِّ مَا صَنَعْتُ، أَبُوءُ لَكَ بِنِعْمَتِكَ عَلَيَّ، وَأَبُوءُ لَكَ بِذَنْبِي، فَاغْفِرْ لِي، فَإِنَّهُ لَا يَغْفِرُ الذُّنُوبَ إِلَّا أَنْتَ</div>
+        <p class="meaning"><strong>Maksud:</strong> Ya Allah, Engkaulah Rabbku. Tiada Tuhan selain-Mu. Engkau menciptakanku dan aku hamba-Mu. Aku tetap di atas janji dan perjanjianku dengan-Mu setakat kemampuanku. Aku berlindung kepada-Mu daripada kejahatan apa yang telah aku lakukan. Aku mengakui nikmat-Mu ke atasku dan aku mengakui dosaku. Maka ampunilah aku, kerana tiada yang mengampunkan dosa melainkan Engkau.</p>
+        <p class="ref"><strong>Rujukan:</strong> Sahih al-Bukhari no. 6306.</p>
+        <details><summary>Hadis penuh dalam Melayu</summary><div class="hadith-body"><p>Rasulullah ﷺ bersabda bahawa penghulu istighfar ialah seseorang berkata doa di atas. Baginda menyebut: sesiapa membacanya pada waktu siang dengan penuh keyakinan lalu meninggal sebelum petang, maka dia termasuk ahli syurga. Dan sesiapa membacanya pada waktu malam dengan penuh keyakinan lalu meninggal sebelum pagi, maka dia termasuk ahli syurga.</p><p><strong>Status:</strong> Sahih — Sahih al-Bukhari.</p></div></details>
+      </article>
+
+      <!-- 2. Subhanallahi wa bihamdih -->
+      <article class="card" id="subhanallah100" data-tags="morning evening strict minimum" data-count="100">
+        <div class="card-head">
+          <div class="card-title-row">
+            <h2>2. Subhanallahi wa bihamdih</h2>
+            <div class="meta">
+              <span class="badge gold">Pagi & Petang</span>
+              <span class="badge green">Sahih Muslim</span>
+              <span class="badge blue">×100</span>
+            </div>
+          </div>
+          <div class="actions">
+            <button class="btn copy-ar">Copy Arabic</button>
+            <button class="btn yellow copy-all">Copy Semua</button>
+            <button class="btn done-btn" title="Tandakan selesai">✓ Selesai</button>
+          </div>
+        </div>
+        <div class="arabic">سُبْحَانَ اللَّهِ وَبِحَمْدِهِ</div>
+        <p class="meaning"><strong>Maksud:</strong> Maha Suci Allah dan dengan segala pujian bagi-Nya.</p>
+        <p class="ref"><strong>Rujukan:</strong> Sahih Muslim no. 2692.</p>
+        <details><summary>Hadis penuh dalam Melayu</summary><div class="hadith-body"><p>Rasulullah ﷺ bersabda: "Sesiapa yang mengucapkan pada waktu pagi dan petang: <em>Subhanallahi wa bihamdih</em> sebanyak seratus kali, tidak ada seorang pun yang datang pada Hari Kiamat dengan amalan lebih baik daripada apa yang dia bawa kecuali seseorang yang mengucapkan seperti itu atau lebih banyak daripada itu."</p><p><strong>Status:</strong> Sahih — Sahih Muslim.</p></div></details>
+      </article>
+
+      <!-- 3. Tiga Qul -->
+      <article class="card" id="threequl" data-tags="morning evening minimum" data-count="3">
+        <div class="card-head">
+          <div class="card-title-row">
+            <h2>3. Tiga Qul</h2>
+            <div class="meta">
+              <span class="badge gold">Pagi & Petang</span>
+              <span class="badge warn">Hasan/Sahih</span>
+              <span class="badge blue">×3 setiap surah</span>
+            </div>
+          </div>
+          <div class="actions">
+            <button class="btn copy-ar">Copy Arabic</button>
+            <button class="btn yellow copy-all">Copy Semua</button>
+            <button class="btn done-btn" title="Tandakan selesai">✓ Selesai</button>
+          </div>
+        </div>
+        <div class="surah-block"><div class="surah-title">Surah al-Ikhlas</div><div class="arabic">قُلْ هُوَ اللَّهُ أَحَدٌ ۝ اللَّهُ الصَّمَدُ ۝ لَمْ يَلِدْ وَلَمْ يُولَدْ ۝ وَلَمْ يَكُنْ لَهُ كُفُوًا أَحَدٌ</div></div>
+        <div class="surah-block"><div class="surah-title">Surah al-Falaq</div><div class="arabic">قُلْ أَعُوذُ بِرَبِّ الْفَلَقِ ۝ مِنْ شَرِّ مَا خَلَقَ ۝ وَمِنْ شَرِّ غَاسِقٍ إِذَا وَقَبَ ۝ وَمِنْ شَرِّ النَّفَّاثَاتِ فِي الْعُقَدِ ۝ وَمِنْ شَرِّ حَاسِدٍ إِذَا حَسَدَ</div></div>
+        <div class="surah-block"><div class="surah-title">Surah an-Nas</div><div class="arabic">قُلْ أَعُوذُ بِرَبِّ النَّاسِ ۝ مَلِكِ النَّاسِ ۝ إِلَٰهِ النَّاسِ ۝ مِنْ شَرِّ الْوَسْوَاسِ الْخَنَّاسِ ۝ الَّذِي يُوَسْوِسُ فِي صُدُورِ النَّاسِ ۝ مِنَ الْجِنَّةِ وَالنَّاسِ</div></div>
+        <p class="meaning"><strong>Maksud ringkas:</strong> Surah tauhid dan perlindungan; dibaca 3 kali pagi dan 3 kali petang.</p>
+        <p class="ref"><strong>Rujukan:</strong> Sunan Abi Dawud no. 5082; Jami' at-Tirmidhi no. 3575. Dinilai hasan/sahih oleh sebahagian ulama.</p>
+        <details><summary>Hadis penuh dalam Melayu</summary><div class="hadith-body"><p>Daripada Abdullah bin Khubaib r.a.: Rasulullah ﷺ bersabda "Bacalah <em>Qul huwa Allahu Ahad</em> dan dua surah perlindungan ketika petang dan pagi sebanyak tiga kali; ia mencukupimu daripada segala sesuatu."</p><p><strong>Status:</strong> Hasan/sahih menurut sebahagian ulama.</p></div></details>
+      </article>
+
+    </div>
+    <div class="empty-state" id="empty-a">Tiada bacaan dalam seksyen ini untuk filter dipilih.</div>
+
+    <!-- SECTION B -->
+    <div class="section-head">
+      <div class="section-num">B</div>
+      <h3>Lengkap Pagi & Petang</h3>
+    </div>
+    <div class="grid" id="grid-b">
+
+      <!-- 4. Asbahna -->
+      <article class="card" id="asbahna" data-tags="morning evening strict" data-count="1">
+        <div class="card-head">
+          <div class="card-title-row">
+            <h2>4. Asbahna / Amsayna wa al-mulku lillah</h2>
+            <div class="meta">
+              <span class="badge gold">Pagi & Petang</span>
+              <span class="badge green">Sahih Muslim</span>
+              <span class="badge blue">×1</span>
+            </div>
+          </div>
+          <div class="actions">
+            <button class="btn copy-ar">Copy Arabic</button>
+            <button class="btn yellow copy-all">Copy Semua</button>
+            <button class="btn done-btn">✓ Selesai</button>
+          </div>
+        </div>
+        <div class="surah-block"><div class="surah-title">Pagi</div><div class="arabic">أَصْبَحْنَا وَأَصْبَحَ الْمُلْكُ لِلَّهِ، وَالْحَمْدُ لِلَّهِ، لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ، وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ، رَبِّ أَسْأَلُكَ خَيْرَ مَا فِي هَذَا الْيَوْمِ وَخَيْرَ مَا بَعْدَهُ، وَأَعُوذُ بِكَ مِنْ شَرِّ مَا فِي هَذَا الْيَوْمِ وَشَرِّ مَا بَعْدَهُ، رَبِّ أَعُوذُ بِكَ مِنَ الْكَسَلِ وَسُوءِ الْكِبَرِ، رَبِّ أَعُوذُ بِكَ مِنْ عَذَابٍ فِي النَّارِ وَعَذَابٍ فِي الْقَبْرِ</div></div>
+        <div class="surah-block"><div class="surah-title">Petang</div><div class="arabic">أَمْسَيْنَا وَأَمْسَى الْمُلْكُ لِلَّهِ، وَالْحَمْدُ لِلَّهِ، لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ، وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ، رَبِّ أَسْأَلُكَ خَيْرَ مَا فِي هَذِهِ اللَّيْلَةِ وَخَيْرَ مَا بَعْدَهَا، وَأَعُوذُ بِكَ مِنْ شَرِّ مَا فِي هَذِهِ اللَّيْلَةِ وَشَرِّ مَا بَعْدَهَا، رَبِّ أَعُوذُ بِكَ مِنَ الْكَسَلِ وَسُوءِ الْكِبَرِ، رَبِّ أَعُوذُ بِكَ مِنْ عَذَابٍ فِي النَّارِ وَعَذَابٍ فِي الْقَبْرِ</div></div>
+        <p class="meaning"><strong>Maksud ringkas:</strong> Kami memasuki pagi/petang dan seluruh kerajaan milik Allah. Ya Rabb, aku memohon kebaikan hari/malam ini dan selepasnya, dan berlindung daripada keburukannya, daripada malas, keburukan usia tua, azab neraka dan azab kubur.</p>
+        <p class="ref"><strong>Rujukan:</strong> Sahih Muslim no. 2723.</p>
+        <details><summary>Hadis penuh dalam Melayu</summary><div class="hadith-body"><p>Apabila masuk waktu pagi, Rasulullah ﷺ membaca zikir pagi dengan lafaz "Kami memasuki pagi dan kerajaan milik Allah..." dan memohon kebaikan hari tersebut. Apabila masuk waktu petang, baginda membaca lafaz petang untuk malam tersebut.</p><p><strong>Status:</strong> Sahih — Sahih Muslim.</p></div></details>
+      </article>
+
+      <!-- 5. Doa Afiyah -->
+      <article class="card" id="afiyah" data-tags="morning evening" data-count="1">
+        <div class="card-head">
+          <div class="card-title-row">
+            <h2>5. Doa 'Afiyah Dunia & Akhirat</h2>
+            <div class="meta">
+              <span class="badge gold">Pagi & Petang</span>
+              <span class="badge warn">Sahih menurut sebahagian ulama</span>
+              <span class="badge blue">×1</span>
+            </div>
+          </div>
+          <div class="actions">
+            <button class="btn copy-ar">Copy Arabic</button>
+            <button class="btn yellow copy-all">Copy Semua</button>
+            <button class="btn done-btn">✓ Selesai</button>
+          </div>
+        </div>
+        <div class="arabic">اللَّهُمَّ إِنِّي أَسْأَلُكَ الْعَافِيَةَ فِي الدُّنْيَا وَالْآخِرَةِ، اللَّهُمَّ إِنِّي أَسْأَلُكَ الْعَفْوَ وَالْعَافِيَةَ فِي دِينِي وَدُنْيَايَ وَأَهْلِي وَمَالِي، اللَّهُمَّ اسْتُرْ عَوْرَاتِي، وَآمِنْ رَوْعَاتِي، اللَّهُمَّ احْفَظْنِي مِنْ بَيْنِ يَدَيَّ، وَمِنْ خَلْفِي، وَعَنْ يَمِينِي، وَعَنْ شِمَالِي، وَمِنْ فَوْقِي، وَأَعُوذُ بِعَظَمَتِكَ أَنْ أُغْتَالَ مِنْ تَحْتِي</div>
+        <p class="meaning"><strong>Maksud:</strong> Ya Allah, aku memohon keselamatan/'afiyah di dunia dan akhirat. Aku memohon keampunan dan 'afiyah pada agama, dunia, keluarga dan hartaku. Ya Allah, tutuplah aibku dan amankanlah ketakutanku. Peliharalah aku dari hadapan, belakang, kanan, kiri dan atas; dan aku berlindung dengan keagungan-Mu daripada disambar kebinasaan dari bawahku.</p>
+        <p class="ref"><strong>Rujukan:</strong> Sunan Abi Dawud no. 5074; Sunan Ibn Majah no. 3871. Dinilai sahih oleh sebahagian ulama.</p>
+        <details><summary>Hadis penuh dalam Melayu</summary><div class="hadith-body"><p>Daripada Ibn Umar r.a.: Rasulullah ﷺ tidak pernah meninggalkan doa-doa ini ketika pagi dan petang: "Ya Allah, aku memohon kepada-Mu 'afiyah di dunia dan akhirat..." hingga akhir doa.</p><p><strong>Status:</strong> Dinilai sahih oleh sebahagian ulama hadis.</p></div></details>
+      </article>
+
+      <!-- 6. Bismillah -->
+      <article class="card" id="bismillah" data-tags="morning evening" data-count="3">
+        <div class="card-head">
+          <div class="card-title-row">
+            <h2>6. Bismillahilladhi la yadurru</h2>
+            <div class="meta">
+              <span class="badge gold">Pagi & Petang</span>
+              <span class="badge warn">Hasan/Sahih</span>
+              <span class="badge blue">×3</span>
+            </div>
+          </div>
+          <div class="actions">
+            <button class="btn copy-ar">Copy Arabic</button>
+            <button class="btn yellow copy-all">Copy Semua</button>
+            <button class="btn done-btn">✓ Selesai</button>
+          </div>
+        </div>
+        <div class="arabic">بِسْمِ اللَّهِ الَّذِي لَا يَضُرُّ مَعَ اسْمِهِ شَيْءٌ فِي الْأَرْضِ وَلَا فِي السَّمَاءِ، وَهُوَ السَّمِيعُ الْعَلِيمُ</div>
+        <p class="meaning"><strong>Maksud:</strong> Dengan nama Allah yang dengan nama-Nya tidak ada sesuatu pun yang boleh memudaratkan di bumi mahupun di langit, dan Dia Maha Mendengar lagi Maha Mengetahui.</p>
+        <p class="ref"><strong>Rujukan:</strong> Sunan Abi Dawud no. 5088; Jami' at-Tirmidhi no. 3388. Dinilai hasan/sahih oleh sebahagian ulama.</p>
+        <details><summary>Hadis penuh dalam Melayu</summary><div class="hadith-body"><p>Rasulullah ﷺ bersabda: "Tidaklah seorang hamba berkata pada setiap pagi dan petang: <em>Bismillahilladhi la yadurru ma'a ismihi shay'un fil-ardi wa la fis-sama'</em> sebanyak tiga kali, melainkan tidak ada sesuatu pun yang memudaratkannya."</p><p><strong>Status:</strong> Hasan/sahih menurut sebahagian ulama.</p></div></details>
+      </article>
+
+      <!-- 7. Raditu -->
+      <article class="card" id="raditu" data-tags="morning evening" data-count="3">
+        <div class="card-head">
+          <div class="card-title-row">
+            <h2>7. Raditu billahi rabba</h2>
+            <div class="meta">
+              <span class="badge gold">Pagi & Petang</span>
+              <span class="badge warn">Hasan menurut sebahagian ulama</span>
+              <span class="badge blue">×3</span>
+            </div>
+          </div>
+          <div class="actions">
+            <button class="btn copy-ar">Copy Arabic</button>
+            <button class="btn yellow copy-all">Copy Semua</button>
+            <button class="btn done-btn">✓ Selesai</button>
+          </div>
+        </div>
+        <div class="arabic">رَضِيتُ بِاللَّهِ رَبًّا، وَبِالْإِسْلَامِ دِينًا، وَبِمُحَمَّدٍ ﷺ نَبِيًّا</div>
+        <p class="meaning"><strong>Maksud:</strong> Aku reda Allah sebagai Rabb, Islam sebagai agama, dan Muhammad ﷺ sebagai Nabi.</p>
+        <p class="ref"><strong>Rujukan:</strong> Sunan Abi Dawud no. 5072; Jami' at-Tirmidhi no. 3389. Dinilai hasan oleh sebahagian ulama.</p>
+        <details><summary>Hadis penuh dalam Melayu</summary><div class="hadith-body"><p>Rasulullah ﷺ menyebut tentang orang yang membaca pada pagi dan petang: "Aku reda Allah sebagai Rabb, Islam sebagai agama, dan Muhammad ﷺ sebagai Nabi," sebanyak tiga kali; maka dia mendapat janji keredaan Allah. Riwayat ini dinilai hasan oleh sebahagian ulama.</p></div></details>
+      </article>
+
+      <!-- 8. Kalimatillah -->
+      <article class="card" id="kalimatillah" data-tags="evening strict" data-count="3">
+        <div class="card-head">
+          <div class="card-title-row">
+            <h2>8. A'udhu bikalimatillahit-tammat</h2>
+            <div class="meta">
+              <span class="badge gold">Petang / Malam</span>
+              <span class="badge green">Sahih Muslim</span>
+              <span class="badge blue">×3</span>
+            </div>
+          </div>
+          <div class="actions">
+            <button class="btn copy-ar">Copy Arabic</button>
+            <button class="btn yellow copy-all">Copy Semua</button>
+            <button class="btn done-btn">✓ Selesai</button>
+          </div>
+        </div>
+        <div class="arabic">أَعُوذُ بِكَلِمَاتِ اللَّهِ التَّامَّاتِ مِنْ شَرِّ مَا خَلَقَ</div>
+        <p class="meaning"><strong>Maksud:</strong> Aku berlindung dengan kalimat-kalimat Allah yang sempurna daripada kejahatan apa yang Dia ciptakan.</p>
+        <p class="ref"><strong>Rujukan:</strong> Sahih Muslim no. 2708/2709.</p>
+        <details><summary>Hadis penuh dalam Melayu</summary><div class="hadith-body"><p>Rasulullah ﷺ bersabda: "Sesiapa yang singgah di suatu tempat lalu berkata: <em>A'udhu bikalimatillahit-tammati min sharri ma khalaq</em>, maka tidak ada sesuatu pun yang memudaratkannya sehingga dia meninggalkan tempat itu."</p><p><strong>Status:</strong> Sahih — Sahih Muslim.</p></div></details>
+      </article>
+
+    </div>
+    <div class="empty-state" id="empty-b">Tiada bacaan dalam seksyen ini untuk filter dipilih.</div>
+
+    <!-- SECTION C -->
+    <div class="section-head">
+      <div class="section-num">C</div>
+      <h3>Tambahan Sahih Jika Mampu</h3>
+    </div>
+    <div class="grid" id="grid-c">
+
+      <!-- 9. Tahlil 100 -->
+      <article class="card" id="tahlil100" data-tags="morning strict" data-count="100">
+        <div class="card-head">
+          <div class="card-title-row">
+            <h2>9. Tahlil 100 kali</h2>
+            <div class="meta">
+              <span class="badge gold">Harian</span>
+              <span class="badge green">Bukhari & Muslim</span>
+              <span class="badge blue">×100</span>
+            </div>
+          </div>
+          <div class="actions">
+            <button class="btn copy-ar">Copy Arabic</button>
+            <button class="btn yellow copy-all">Copy Semua</button>
+            <button class="btn done-btn">✓ Selesai</button>
+          </div>
+        </div>
+        <div class="arabic">لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ، وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ</div>
+        <p class="meaning"><strong>Maksud:</strong> Tiada Tuhan selain Allah semata-mata, tiada sekutu bagi-Nya. Milik-Nya kerajaan dan bagi-Nya segala pujian. Dia Maha Kuasa atas segala sesuatu.</p>
+        <p class="small-txt"><strong>Nota:</strong> Sangat sahih sebagai zikir harian. Jangan rasa wajib lengkap 100 kali jika baru mula.</p>
+        <p class="ref"><strong>Rujukan:</strong> Sahih al-Bukhari no. 3293; Sahih Muslim no. 2691.</p>
+        <details><summary>Hadis penuh dalam Melayu</summary><div class="hadith-body"><p>Rasulullah ﷺ bersabda: "Sesiapa mengucapkan <em>La ilaha illallah wahdahu la sharika lah, lahul-mulku wa lahul-hamdu, wa Huwa 'ala kulli shay'in qadir</em> dalam sehari sebanyak seratus kali, maka baginya pahala seperti memerdekakan sepuluh hamba, ditulis seratus kebaikan, dihapuskan seratus keburukan, dan ia menjadi perlindungan daripada syaitan pada hari itu."</p><p><strong>Status:</strong> Sahih — al-Bukhari dan Muslim.</p></div></details>
+      </article>
+
+      <!-- 10. Juwayriyah -->
+      <article class="card" id="juwayriyah" data-tags="morning strict" data-count="3">
+        <div class="card-head">
+          <div class="card-title-row">
+            <h2>10. Zikir Juwayriyah selepas Subuh</h2>
+            <div class="meta">
+              <span class="badge gold">Selepas Subuh</span>
+              <span class="badge green">Sahih Muslim</span>
+              <span class="badge blue">×3</span>
+            </div>
+          </div>
+          <div class="actions">
+            <button class="btn copy-ar">Copy Arabic</button>
+            <button class="btn yellow copy-all">Copy Semua</button>
+            <button class="btn done-btn">✓ Selesai</button>
+          </div>
+        </div>
+        <div class="arabic">سُبْحَانَ اللَّهِ وَبِحَمْدِهِ، عَدَدَ خَلْقِهِ، وَرِضَا نَفْسِهِ، وَزِنَةَ عَرْشِهِ، وَمِدَادَ كَلِمَاتِهِ</div>
+        <p class="meaning"><strong>Maksud:</strong> Maha Suci Allah dan segala puji bagi-Nya, sebanyak bilangan makhluk-Nya, sejauh keredaan-Nya, seberat 'Arasy-Nya, dan sebanyak tinta kalimat-Nya.</p>
+        <p class="small-txt"><strong>Nota:</strong> Bukan zikir "pagi petang" dalam bentuk yang sama, tetapi sangat kuat untuk selepas Subuh/pagi.</p>
+        <p class="ref"><strong>Rujukan:</strong> Sahih Muslim no. 2726.</p>
+        <details><summary>Hadis penuh dalam Melayu</summary><div class="hadith-body"><p>Rasulullah ﷺ keluar dari sisi Juwayriyah r.a. selepas solat Subuh. Kemudian baginda kembali selepas waktu Dhuha dan beliau masih duduk berzikir. Nabi ﷺ bersabda: "Aku telah mengucapkan selepasmu empat kalimah sebanyak tiga kali; jika ditimbang dengan apa yang engkau ucapkan sejak tadi, nescaya ia menyamainya."</p><p><strong>Status:</strong> Sahih — Sahih Muslim.</p></div></details>
+      </article>
+
+    </div>
+    <div class="empty-state" id="empty-c">Tiada bacaan dalam seksyen ini untuk filter dipilih.</div>
+
+    <!-- TIP BOX -->
+    <div class="tip-box">
+      <h2>Cara guna paling mudah</h2>
+      <p><strong>Hari berat:</strong> buat Minimum Harian sahaja. <strong>Hari lapang:</strong> tambah Lengkap Pagi & Petang. <strong>Selepas Subuh:</strong> tambah Zikir Juwayriyah. Jangan jadikan page ini beban; jadikan ia jalan untuk kembali kepada Allah.</p>
+    </div>
+
+  </main>
+
+  <div class="footer">
+    Zikir Pagi & Petang · Versi 1.0 · Disusun dengan nota kesahihan ringkas.<br>
+    Semak semula dengan guru/ustaz jika mahu pengesahan sanad dan takhrij yang lebih terperinci.
+  </div>
+
+  <!-- STICKY MOBILE BAR -->
+  <div class="sticky-bar" id="stickyBar">
+    <div class="sb-label">Hari ini</div>
+    <div class="sb-progress">
+      <span class="sb-count" id="sbCount">0</span>
+      <span class="sb-total">/ 10 selesai</span>
+    </div>
+    <div class="sb-dots" id="sbDots"></div>
+  </div>
+
+  <div class="toast" id="toast">Copied ✓</div>
+
+  <script>
+    /* ── DRAWER ── */
+    const drawer   = document.getElementById('drawer');
+    const backdrop = document.getElementById('backdrop');
+    const openBtn  = document.getElementById('openDrawer');
+    const closeBtn = document.getElementById('closeDrawer');
+    function openDrawer()  { drawer.classList.add('open'); backdrop.classList.add('open'); document.body.classList.add('drawer-open'); }
+    function closeDrawer() { drawer.classList.remove('open'); backdrop.classList.remove('open'); document.body.classList.remove('drawer-open'); }
+    openBtn.addEventListener('click', openDrawer);
+    closeBtn.addEventListener('click', closeDrawer);
+    backdrop.addEventListener('click', closeDrawer);
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDrawer(); });
+    drawer.querySelectorAll('a').forEach(a => a.addEventListener('click', () => setTimeout(closeDrawer, 80)));
+
+    /* ── SCROLL TO TOP ── */
+    document.getElementById('toTop').addEventListener('click', () => scrollTo({ top: 0, behavior: 'smooth' }));
+
+    /* ── TOAST ── */
+    const toast = document.getElementById('toast');
+    function showToast(msg) {
+      toast.textContent = msg;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 1400);
+    }
+
+    /* ── COPY ── */
+    function cleanText(s) { return s.replace(/\s+/g, ' ').trim(); }
+    async function copyText(text) {
+      try { await navigator.clipboard.writeText(text); showToast('Copied ✓'); }
+      catch (e) { showToast('Copy gagal'); }
+    }
+    document.querySelectorAll('.card').forEach(card => {
+      const ar      = [...card.querySelectorAll('.arabic')].map(el => cleanText(el.innerText)).join('\n\n');
+      const title   = card.querySelector('h2')?.innerText || '';
+      const meaning = card.querySelector('.meaning')?.innerText || '';
+      const ref     = card.querySelector('.ref')?.innerText || '';
+      card.querySelector('.copy-ar')?.addEventListener('click',  () => copyText(ar));
+      card.querySelector('.copy-all')?.addEventListener('click', () => copyText([title, ar, meaning, ref].filter(Boolean).join('\n\n')));
+    });
+
+    /* ── ARABIC FONT SIZE ── */
+    const arBtns = { small: document.getElementById('arSmall'), med: document.getElementById('arMed'), large: document.getElementById('arLarge') };
+    function setArSize(size) {
+      document.body.classList.remove('ar-small', 'ar-large');
+      if (size === 'small') document.body.classList.add('ar-small');
+      if (size === 'large') document.body.classList.add('ar-large');
+      Object.values(arBtns).forEach(b => b.classList.remove('active'));
+      arBtns[size].classList.add('active');
+    }
+    arBtns.small.addEventListener('click', () => setArSize('small'));
+    arBtns.med.addEventListener('click',   () => setArSize('med'));
+    arBtns.large.addEventListener('click', () => setArSize('large'));
+
+    /* ── SELESAI / DONE TOGGLE ── */
+    const allCards = [...document.querySelectorAll('.card')];
+    const doneState = {}; // cardId -> boolean
+
+    function updateStickyBar() {
+      const count = Object.values(doneState).filter(Boolean).length;
+      document.getElementById('sbCount').textContent = count;
+      const dots = document.getElementById('sbDots');
+      dots.innerHTML = '';
+      allCards.forEach(card => {
+        const dot = document.createElement('span');
+        dot.className = 'sb-dot' + (doneState[card.id] ? ' filled' : '');
+        dots.appendChild(dot);
+      });
+    }
+
+    allCards.forEach(card => {
+      doneState[card.id] = false;
+      const doneBtn = card.querySelector('.done-btn');
+      if (!doneBtn) return;
+      doneBtn.addEventListener('click', () => {
+        doneState[card.id] = !doneState[card.id];
+        const isDone = doneState[card.id];
+        card.classList.toggle('done-card', isDone);
+        doneBtn.classList.toggle('ticked', isDone);
+        doneBtn.textContent = isDone ? '✓ Selesai' : '✓ Selesai';
+        updateStickyBar();
+        // auto-complete counter if card has counter
+        const counterRow = card.querySelector('.counter-row');
+        if (counterRow && isDone) {
+          const target = parseInt(card.dataset.count || 1);
+          const display = counterRow.querySelector('.c-current');
+          if (display) display.textContent = target;
+          counterRow.classList.add('counter-done');
+        }
+      });
+    });
+    updateStickyBar();
+
+    /* ── TAP COUNTER ── */
+    // Build counter for cards with count > 1
+    allCards.forEach(card => {
+      const target = parseInt(card.dataset.count || 1);
+      if (target <= 1) return; // no counter for ×1 cards
+
+      const ref = card.querySelector('.ref');
+      if (!ref) return;
+
+      const row = document.createElement('div');
+      row.className = 'counter-row';
+      row.innerHTML = `
+        <span class="c-label">Kiraan</span>
+        <button class="c-minus" aria-label="Tolak satu">−</button>
+        <div class="c-display">
+          <span class="c-current">0</span><span class="c-sep">/</span><span class="c-target">${target}</span>
+        </div>
+        <button class="c-plus" aria-label="Tambah satu">+</button>
+        <button class="c-reset">Reset</button>
+      `;
+
+      // Insert before .ref
+      card.insertBefore(row, ref);
+
+      let count = 0;
+      const display = row.querySelector('.c-current');
+
+      function updateCounter() {
+        display.textContent = count;
+        row.classList.toggle('counter-done', count >= target);
+        // auto-tick selesai when reached
+        if (count >= target) {
+          const doneBtn = card.querySelector('.done-btn');
+          if (doneBtn && !doneBtn.classList.contains('ticked')) {
+            doneBtn.click();
+          }
+        }
+      }
+
+      row.querySelector('.c-plus').addEventListener('click', () => {
+        if (count < target) { count++; updateCounter(); }
+        else { showToast('Dah cukup ' + target + ' kali 🎉'); }
+      });
+      row.querySelector('.c-minus').addEventListener('click', () => {
+        if (count > 0) { count--; updateCounter(); }
+      });
+      row.querySelector('.c-reset').addEventListener('click', () => {
+        count = 0; updateCounter();
+        row.classList.remove('counter-done');
+        const doneBtn = card.querySelector('.done-btn');
+        if (doneBtn && doneBtn.classList.contains('ticked')) {
+          doneBtn.click(); // untick
+        }
+      });
+    });
+
+    /* ── FILTER WITH FADE + EMPTY STATE ── */
+    const grids = [
+      { grid: document.getElementById('grid-a'), empty: document.getElementById('empty-a') },
+      { grid: document.getElementById('grid-b'), empty: document.getElementById('empty-b') },
+      { grid: document.getElementById('grid-c'), empty: document.getElementById('empty-c') },
+    ];
+
+    function applyFilter(f) {
+      allCards.forEach(card => {
+        const match = f === 'all' || card.dataset.tags.includes(f);
+        if (!match) {
+          card.classList.add('hiding');
+          setTimeout(() => card.classList.add('hidden'), 200);
+        } else {
+          card.classList.remove('hidden');
+          requestAnimationFrame(() => card.classList.remove('hiding'));
+        }
+      });
+      // update empty states
+      setTimeout(() => {
+        grids.forEach(({ grid, empty }) => {
+          const visible = [...grid.querySelectorAll('.card')].filter(c => !c.classList.contains('hidden'));
+          empty.style.display = visible.length === 0 ? 'block' : 'none';
+        });
+      }, 220);
+    }
+
+    document.querySelectorAll('.chip[data-filter]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.chip[data-filter]').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        applyFilter(btn.dataset.filter);
+      });
+    });
+
+    /* ── SCROLL SPY ── */
+    const drawerLinks = {};
+    document.querySelectorAll('.drawer-list a[href^="#"]').forEach(a => {
+      drawerLinks[a.getAttribute('href').slice(1)] = a;
+    });
+
+    const spyObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        const link = drawerLinks[entry.target.id];
+        if (link) link.classList.toggle('spy-active', entry.isIntersecting);
+      });
+    }, { rootMargin: '-10% 0px -70% 0px', threshold: 0 });
+
+    allCards.forEach(card => { if (card.id) spyObserver.observe(card); });
+
+
+    /* ── PWA: SERVICE WORKER + INSTALL PROMPT ── */
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./service-worker.js').catch(() => {});
+      });
+    }
+
+    const pwaCard = document.getElementById('pwaCard');
+    const installBtn = document.getElementById('installBtn');
+    const hidePwaCard = document.getElementById('hidePwaCard');
+    let deferredPrompt = null;
+
+    function isStandalone() {
+      return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+    }
+    function isMobileLike() {
+      return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent || '');
+    }
+    if (pwaCard && !isStandalone() && isMobileLike() && localStorage.getItem('pwaCardHidden') !== '1') {
+      pwaCard.classList.add('show');
+    }
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      if (installBtn && pwaCard && !isStandalone()) {
+        pwaCard.classList.add('show');
+        installBtn.style.display = 'inline-flex';
+      }
+    });
+    installBtn?.addEventListener('click', async () => {
+      if (!deferredPrompt) return;
+      deferredPrompt.prompt();
+      await deferredPrompt.userChoice;
+      deferredPrompt = null;
+      installBtn.style.display = 'none';
+    });
+    hidePwaCard?.addEventListener('click', () => {
+      pwaCard?.classList.remove('show');
+      localStorage.setItem('pwaCardHidden', '1');
+    });
+  </script>
+</body>
+</html>
